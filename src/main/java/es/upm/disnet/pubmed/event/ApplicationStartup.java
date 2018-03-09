@@ -70,8 +70,8 @@ public class ApplicationStartup
     @Override
     public void onApplicationEvent(final ApplicationReadyEvent event) {
         String snapshot = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-
-        pubMedSnapshot = StringUtils.isNotBlank(pubMedSnapshot) ? pubMedSnapshot : snapshot;
+        System.out.println("NO se ejecuta");
+        /*pubMedSnapshot = StringUtils.isNotBlank(pubMedSnapshot) ? pubMedSnapshot : snapshot;
 
         if (diseaseClassService.countAllBySnapshot(pubMedSnapshot) == 0) {
             populateDiseaseClassTask.populateDiseaseClasses(pubMedSnapshot);
@@ -99,6 +99,6 @@ public class ApplicationStartup
             populatePubMedDocTermsTask.populatePubMedDocTerms(pubMedSnapshot);
         }
 
-        pubMedDiseaseDistanceExperiment.runExperiment(pubMedSnapshot, disnetSnapshot);
+        pubMedDiseaseDistanceExperiment.runExperiment(pubMedSnapshot, disnetSnapshot);*/
     }
 }
