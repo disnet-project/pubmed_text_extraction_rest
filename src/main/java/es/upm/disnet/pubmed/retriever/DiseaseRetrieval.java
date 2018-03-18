@@ -1,10 +1,9 @@
 package es.upm.disnet.pubmed.retriever;
 
+import es.upm.disnet.pubmed.common.util.Common;
 import es.upm.disnet.pubmed.constants.Constants;
 import es.upm.disnet.pubmed.enums.SourceEnum;
-import es.upm.disnet.pubmed.model.document_structure.Disease;
-import es.upm.disnet.pubmed.model.document_structure.Synonym;
-import es.upm.disnet.pubmed.model.document_structure.Term;
+import es.upm.disnet.pubmed.model.document_structure.*;
 import es.upm.disnet.pubmed.model.document_structure.code.Code;
 import es.upm.disnet.pubmed.model.document_structure.code.Resource;
 import es.upm.disnet.pubmed.parser.DiseaseOntologyOBOParser;
@@ -13,6 +12,7 @@ import es.upm.disnet.pubmed.parser.MeSHASCIIParser;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -34,6 +34,9 @@ import java.util.stream.Stream;
 @Component
 public class DiseaseRetrieval {
 
+    @Autowired
+    Common common;
+
     private static final Logger logger = LoggerFactory.getLogger(DiseaseRetrieval.class);
     // View https://meshb.nlm.nih.gov/treeView
     private final static List<String> EXCLUDED_MESH_MN = Arrays.asList(new String[]{"C21", "C22", "C23", "C24", "C25", "C26"});
@@ -44,7 +47,7 @@ public class DiseaseRetrieval {
      * @param snapshot
      * @return
      */
-    public void retrieval(String snapshot) {
+    public List<Disease> retrieve(String snapshot) {
         List<Disease> diseases = new ArrayList<>();
         try {
             StopWatch watch = new StopWatch();
@@ -83,6 +86,7 @@ public class DiseaseRetrieval {
 
             //TODO: extract to constants
 
+            int count = 1;
             doRecords.stream().filter(o -> o.hasPropertyValue("xref", "MESH:D")).forEach(
                     o -> {
                         String meshUI = o.getPropertyValue("xref", "MESH:");
@@ -102,7 +106,7 @@ public class DiseaseRetrieval {
                     }
             );
 
-            System.out.println("sixe: " + diseases.size());
+            //System.out.println("Diseases Retrieved from PubMed: " + diseases.size());
 
             watch.stop();
 
@@ -113,6 +117,8 @@ public class DiseaseRetrieval {
         } catch (Exception e) {
             logger.error("Error while populating Disease table", e);
         }
+
+        return diseases;
     }
 
 
@@ -121,11 +127,12 @@ public class DiseaseRetrieval {
 
         logger.trace("Adding disease with MESH UI {} from DO Id {}", meshRecord.getId(), doRecord.getId());
         //logger.info("Adding disease with MESH UI {} from DO Id {}", meshRecord.getId(), doRecord.getId());
-        System.out.println(meshRecord.getId() +", "+ doRecord.getId());
+        //System.out.println(meshRecord.getId() +", "+ doRecord.getId());
 
-        disease.setMeshUI(meshRecord.getId());
+        disease.setMeSHUI(meshRecord.getId());
         disease.setName(doRecord.getPropertyValue("name"));
         disease.setDefinition(doRecord.getPropertyValue("def"));
+        disease.setLinks( getDiseaseLinks(doRecord.getPropertyValue("def")) );
         //set Disease Codes
         disease.setCodes(
                 getCodes(doRecord.getPropertyValues("xref", "ICD10CM:"),
@@ -136,47 +143,98 @@ public class DiseaseRetrieval {
         );
         disease.setCodeCount(disease.getCodes().size());
         disease.setSynonyms( getSynonyms(doRecord.getPropertyValues("synonym")) );
+        disease.setSynonymCount(disease.getSynonyms().size());
 
         if (diseases.contains(disease)){ /*containsName(diseases, meshRecord.getId())*/
+            //Por el momento he decidido no hacer nada con los repetidos.
+            //Lo comentaré mañana. Eduardo los fuciona
             Disease existingDisease = diseases.get( diseases.indexOf(disease) );
-            System.out.println("Found: " + meshRecord.getId());
-            System.out.println("old: " + existingDisease.getMeshMH() + " | new: "+ disease.getMeshMH());
+            //System.out.println("Found: " + meshRecord.getId() + " - " + existingDisease.getMeSHMH());
+            //System.out.println("old: " + existingDisease.getName() + " | new: "+ disease.getName());
         }else {
-            disease.setMeshMH(meshRecord.getPropertyValue("MH"));
-            disease.setMeshTerms( getMeshTerms(Arrays.asList( meshRecord.getPropertyValue("MH").split(","))) );
-            disease.setMeshTermCount(disease.getMeshTerms().size());
-            disease.setMeshMN(getMeshTreeCodes(meshRecord.getPropertyValues("MN")));
+            disease.setMeSHMH(meshRecord.getPropertyValue("MH"));
+            disease.setMeSHTerms( getMeshTerms(Arrays.asList( meshRecord.getPropertyValue("MH").split(","))) );
+            disease.setMeSHTermCount(disease.getMeSHTerms().size());
+            disease.setMeSHMN(getMeshTreeCodes(meshRecord.getPropertyValues("MN")));
             diseases.add(disease);
             //System.out.println("Not Found: " + meshRecord.getId());
         }
 
+        //System.out.println("DISEASE: " + disease);
 
+    }
 
+    private List<Link> getDiseaseLinks(String definition){
+        List<Link> links = new ArrayList<>();
+        if (!common.isEmpty(definition)) {
+            String[] urls = definition.split("url:");
+            //System.out.println("length: " + urls.length);
+            int count = 1, cLink = 1;
+            for (String u : urls) {
+                if (count!=1) {
+                    //System.out.println("url: " + u.replace("http\\://", "").replace("https\\://", ""));
+                    String url = u.replace("http\\://", "").replace("https\\://", "");
+                    Link link = new Link();
+                    link.setId(cLink);
+                    link.setUrl(url);
+                    if (url.contains("wiki")) {
+                        Source source = new Source(Constants.SOURCE_WIKIPEDIA_CODE, Constants.SOURCE_WIKIPEDIA);
+                        link.setSource(source);
+                    }
+                    links.add(link);
+                    cLink++;
+                }
+                count++;
+            }
+        }
 
+        if (links.size() > 0) return links;
+        else return null;
     }
 
 
     private List<Synonym> getSynonyms(List<String> synonyms){
         List<Synonym> synonymList = new ArrayList<>();
+        List<Code> codes;
         if (synonyms != null) {
             //System.out.println("synonym: " + doRecord.getPropertyValues("synonym").toString());
             int count = 1;
             for (String synonym: synonyms) {
                 String[] resource = synonym.split("EXACT");
-                if (resource.length > 0){
+                if (resource.length == 2){
                     Synonym s = new Synonym();
+                    codes = new ArrayList<>();
                     s.setId(count);
-                    s.setName(resource[0].trim());
+                    s.setName(resource[0].replace("\"","").trim());
                     String[] source = resource[1].split(":");
-                    if (source.length > 0){
-
+                    if (source.length == 2){
+                        if (!common.isEmpty(source[0]) && !common.isEmpty(source[1])){
+                            Code code = new Code();
+                            code.setCode(source[1].replace("]","").trim());
+                            code.setResource(identifyResource(source[0].replace("[","").trim()));
+                            codes.add(code);
+                        }
                     }
+                    s.setCodes(codes);
+                    s.setCodeCount(s.getCodes().size());
+                    synonymList.add(s);
                     count++;
                 }
             }
-            //System.out.println("synonym: " + synonyms.);
+//            System.out.println("Synonym: " + synonymList);
         }
         return synonymList;
+    }
+
+    private Resource identifyResource(String resource){
+        for (SourceEnum source: SourceEnum.values()) {
+            //System.out.println(resource+" == "+source.getDescripcion().toUpperCase().replace("-", "").replace("_", ""));
+            if (resource.contains(source.getDescripcion().toUpperCase().replace("-", "").replace("_", ""))){
+//                System.out.println(resource+" == "+source.getDescripcion().toUpperCase().replace("-", "").replace("_", ""));
+                return new Resource(source.getClave(), source.getDescripcion());
+            }
+        }
+        return null;
     }
 
     private List<Term> getMeshTerms(List<String> meshTerms){
@@ -247,7 +305,7 @@ public class DiseaseRetrieval {
     }
 
     public boolean containsName(final List<Disease> list, final String meshUI){
-        return list.stream().map(Disease::getMeshUI).filter(meshUI::equals).findFirst().isPresent();
+        return list.stream().map(Disease::getMeSHUI).filter(meshUI::equals).findFirst().isPresent();
     }
 
 }

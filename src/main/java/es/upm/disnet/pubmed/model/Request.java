@@ -23,6 +23,7 @@ public class Request {
     @NotNull(message = Constants.ERR_NO_PARAMETER)
     @Size(min = 10, max = 10, message = Constants.ERR_EMPTY_PARAMETER)
     private String snapshot;
+    private boolean json;
 
 
     public String getSnapshot() {
@@ -31,5 +32,13 @@ public class Request {
 
     public void setSnapshot(String snapshot) {
         this.snapshot = snapshot;
+    }
+
+    public boolean isJson() {
+        return json;
+    }
+
+    public void setJson(boolean json) {
+        this.json = json;
     }
 }

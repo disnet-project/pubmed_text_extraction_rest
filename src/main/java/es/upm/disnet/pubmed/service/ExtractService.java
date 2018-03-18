@@ -1,12 +1,16 @@
 package es.upm.disnet.pubmed.service;
 
 import es.upm.disnet.pubmed.common.util.TimeProvider;
+import es.upm.disnet.pubmed.enums.ApiErrorEnum;
+import es.upm.disnet.pubmed.enums.StatusHttpEnum;
+import es.upm.disnet.pubmed.model.Request;
 import es.upm.disnet.pubmed.model.Response;
 import es.upm.disnet.pubmed.model.document_structure.Source;
-import es.upm.disnet.pubmed.retriever.DiseaseRetrieval;
+import es.upm.disnet.pubmed.retriever.RetrievalControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -25,18 +29,36 @@ public class ExtractService {
     @Autowired
     private TimeProvider timeProvider;
     @Autowired
-    private DiseaseRetrieval diseaseRetrieval;
+    private RetrievalControl retrievalControl;
 
 
-    public Response extract(String snapshot) throws Exception {
+    public Response extract(Request request) throws Exception {
         Response response = new Response();
-        List<Source> sourceList = null;
+        Source source = new Source();
 
         String start = timeProvider.getTimestampFormat();
-        String end = null;
         Date version = timeProvider.getSqlDate();
 
-        diseaseRetrieval.retrieval(snapshot);
+        try {
+            source = retrievalControl.retrieve(request);
+            if (source != null) {
+                response.setResponseCode(StatusHttpEnum.OK.getClave());
+                response.setResponseMessage(StatusHttpEnum.OK.getDescripcion());
+            } else {
+                response.setResponseCode(ApiErrorEnum.RESOURCES_NOT_FOUND.getKey());
+                response.setResponseMessage(ApiErrorEnum.RESOURCES_NOT_FOUND.getDescription());
+            }
+        }catch (Exception e){
+            response.setResponseCode(ApiErrorEnum.INTERNAL_SERVER_ERROR.getKey());
+            response.setResponseMessage(ApiErrorEnum.INTERNAL_SERVER_ERROR.getDescription());
+        }
+        String end = timeProvider.getTimestampFormat();
+
+        response.setSource(source);
+        response.setStart_time(start);
+        response.setEnd_time(end);
+
+        System.out.println("Inicio:" + start + " | Termino: " + end);
 
         return response;
 

@@ -17,6 +17,14 @@ public class Term {
     private Resource resource;
 
 
+    public Term() {
+    }
+
+    public Term(String name, Resource resource) {
+        this.name = name;
+        this.resource = resource;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -39,5 +47,15 @@ public class Term {
 
     public void setResource(Resource resource) {
         this.resource = resource;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Term{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", resource=" + resource +
+                '}';
     }
 }

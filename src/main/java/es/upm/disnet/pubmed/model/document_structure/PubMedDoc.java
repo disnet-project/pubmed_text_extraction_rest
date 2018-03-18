@@ -7,75 +7,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  */
 
-package es.upm.disnet.pubmed.model.jpa;
+package es.upm.disnet.pubmed.model.document_structure;
 
 /**
  * @author Eduardo P. Garcia del Valle
  */
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import es.upm.disnet.pubmed.constants.Constants;
+import es.upm.disnet.pubmed.enums.SourceEnum;
+import es.upm.disnet.pubmed.model.document_structure.code.Resource;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
-@Entity
 public class PubMedDoc {
 
     private static final String FULL_TEXT_DELIMITER = ";;";
-    private Date createDate;
-    @Id
-    @Column(name = "pubMedDocId", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    @Column(length = 3000)
     private String author;
-    @NotNull
     private String pmID;
     private String pmcID;
     private String doi;
-    @Column(length = 3000)
     private String titleText;
-    @Column(length = 3000)
     private String meshTerms;
-    @Column(length = 3000)
     private String keyWords;
-    @Lob
     private String abstractText;
-    /*
-    // Many to Many
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "Disease_PubMedDoc",
-            joinColumns = {@JoinColumn(name = "pubMedDocId", referencedColumnName = "pubMedDocId")},
-            inverseJoinColumns = {@JoinColumn(name = "diseaseId", referencedColumnName = "diseaseId")})
-    private Set<Disease> diseases = new HashSet();
-
-    @JsonIgnore
-    public Set<Disease> getDiseases() {
-        return diseases;
-    }
-
-    public void setDiseases(Set<Disease> diseases) {
-        this.diseases = diseases;
-    }
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public long getDiseaseCount() {
-        return diseases.size();
-    }
-    */
-    @ManyToOne
-    @JoinColumn(name = "disease_id")
     private Disease disease;
-    @NotNull
     private String snapshot;
+    private Integer termCount;
+    private List<Term> terms;
+    private boolean hasFreeText;
+    private Link link;
+    private Link freeTextlink;
 
     public String getAbstractText() {
         return abstractText;
@@ -93,7 +56,6 @@ public class PubMedDoc {
         this.pmcID = pmcID;
     }
 
-    @JsonIgnore
     public Disease getDisease() {
         return disease;
     }
@@ -102,17 +64,14 @@ public class PubMedDoc {
         this.disease = disease;
     }
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public long getDiseaseId() {
         return disease.getId();
     }
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getPmArticleURL() {
         return pmID != null ? "https://www.ncbi.nlm.nih.gov/pubmed/" + pmID : pmID;
     }
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getPmcArticleURL() {
         return pmcID != null ? "https://www.ncbi.nlm.nih.gov/pmc/articles/" + pmcID : pmcID;
     }
@@ -149,11 +108,10 @@ public class PubMedDoc {
         this.author = author;
     }
 
-    public void setAuthor(Collection<String> author) {
+    public void setAuthor(List<String> author) {
         this.author = asString(author, true);
     }
 
-    @JsonIgnore
     public Collection<String> getAuthorAsCollection() {
         return asCollection(author, true);
     }
@@ -174,27 +132,27 @@ public class PubMedDoc {
         this.titleText = titleText;
     }
 
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
     public String getMeshTerms() {
         return meshTerms;
     }
 
-    public void setMeshTerms(Collection<String> meshTerms) {
+    public void setMeshTerms(List<String> meshTerms) {
         this.meshTerms = asString(meshTerms);
+        if (meshTerms!=null) {
+            List<Term> terms = new ArrayList<>();
+            for (String t : meshTerms) {
+                Term term = new Term(t, new Resource(SourceEnum.MeSH.getClave(), SourceEnum.MeSH.getDescripcion()));
+                terms.add(term);
+            }
+            this.terms = terms;
+            this.termCount = this.terms.size();
+        }
     }
 
     public void setMeshTerms(String meshTerms) {
         this.meshTerms = meshTerms;
     }
 
-    @JsonIgnore
     public Collection<String> getMeshTermsAsCollection() {
         return asCollection(meshTerms);
     }
@@ -211,9 +169,65 @@ public class PubMedDoc {
         this.keyWords = keyWords;
     }
 
-    @JsonIgnore
     public Collection<String> getKeyWordsAsCollection() {
         return asCollection(keyWords);
+    }
+
+    public Integer getTermCount() {
+        return termCount;
+    }
+
+    public void setTermCount(Integer termCount) {
+        this.termCount = termCount;
+    }
+
+    public List<Term> getTerms() {
+        return terms;
+    }
+
+    public void setTerms(List<Term> terms) {
+        this.terms = terms;
+    }
+
+    public boolean isHasFreeText() {
+        return hasFreeText;
+    }
+
+    public void setHasFreeText(boolean hasFreeText) {
+        //pmcID != null ? true : false;
+        this.hasFreeText = hasFreeText;
+    }
+
+    public void setHasFreeText() {
+        this.hasFreeText = pmcID != null;
+    }
+
+    public Link getLink() {
+        return link;
+    }
+
+    public void setLink(Link link) {
+        this.link = link;
+    }
+
+    public void setLink() {
+        Source source = new Source(Constants.SOURCE_WIKIPEDIA_CODE, Constants.SOURCE_WIKIPEDIA);
+        if (pmID != null) this.link = new Link(this.getPmArticleURL(), source);
+        else this.link = null;
+    }
+
+    public Link getFreeTextlink() {
+        return freeTextlink;
+    }
+
+    public void setFreeTextlink(Link freeTextlink) {
+        this.freeTextlink = freeTextlink;
+    }
+
+    public void setFreeTextlink() {
+        Source source = new Source(Constants.SOURCE_WIKIPEDIA_CODE, Constants.SOURCE_WIKIPEDIA);
+        if (pmcID != null) this.freeTextlink = new Link(this.getPmcArticleURL(), source);
+        else this.freeTextlink = null;
     }
 
     private Collection<String> asCollection(String value) {
@@ -254,5 +268,28 @@ public class PubMedDoc {
     @Override
     public int hashCode() {
         return Objects.hash(pmID);
+    }
+
+    @Override
+    public String toString() {
+        return "PubMedDoc{" +
+                "id=" + id +
+                ", link='" + getLink() + '\'' +
+                ", url='" + getPmArticleURL() + '\'' +
+                ", urlPMCenter='" + getPmcArticleURL() + '\'' +
+                ", author='" + author + '\'' +
+                ", pmID='" + pmID + '\'' +
+                ", pmcID='" + pmcID + '\'' +
+                ", doi='" + doi + '\'' +
+                ", titleText='" + titleText + '\'' +
+                ", meshTerms='" + meshTerms + '\'' +
+                ", termCount='" + termCount + '\'' +
+                ", terms='" + getTerms().toString() + '\'' +
+                ", keyWords='" + keyWords + '\'' +
+                ", abstractText='" + abstractText + '\'' +
+                ", hasFreeText='" + hasFreeText + '\'' +
+                //", disease=" + disease +
+                ", snapshot='" + snapshot + '\'' +
+                '}';
     }
 }

@@ -15,13 +15,22 @@ import java.util.TreeMap;
 public class Source {
 
     private int id;
+    private String code;
     private String name;
     private Link url;
 
-    private List<Doc> docList;
+    private Integer documentCount;
+    private List<Doc> documents;
     private TreeMap<String, String> sectionMap;
 
 
+    public Source() {
+    }
+
+    public Source(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
 
     public int getId() {
         return id;
@@ -29,6 +38,14 @@ public class Source {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getName() {
@@ -47,12 +64,20 @@ public class Source {
         this.url = url;
     }
 
-    public List<Doc> getDocList() {
-        return docList;
+    public Integer getDocumentCount() {
+        return documentCount;
     }
 
-    public void setDocList(List<Doc> docList) {
-        this.docList = docList;
+    public void setDocumentCount(Integer documentCount) {
+        this.documentCount = documentCount;
+    }
+
+    public List<Doc> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(List<Doc> documents) {
+        this.documents = documents;
     }
 
     public TreeMap<String, String> getSectionMap() {
@@ -63,4 +88,15 @@ public class Source {
         this.sectionMap = sectionMap;
     }
 
+    @Override
+    public String toString() {
+        return "Source{" +
+                "id=" + id +
+                ", code='" + code + '\'' +
+                ", name='" + name + '\'' +
+                ", url=" + url +
+                ", documents=" + documents +
+                ", sectionMap=" + sectionMap +
+                '}';
+    }
 }

@@ -66,4 +66,14 @@ public class Section {
         this.textList = textList;
     }
 
+    @Override
+    public String toString() {
+        return "Section{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", textCount=" + textCount +
+                ", textList=" + textList +
+                '}';
+    }
 }

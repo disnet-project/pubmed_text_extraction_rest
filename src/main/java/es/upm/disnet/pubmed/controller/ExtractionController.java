@@ -34,7 +34,7 @@ public class ExtractionController {
     public Response extract(@RequestBody @Valid Request request, HttpServletRequest httpRequest, Device device) throws Exception {
         Response response = new Response();
 
-        extractService.extract(request.getSnapshot());
+        extractService.extract(request);
 
         return response;
     }

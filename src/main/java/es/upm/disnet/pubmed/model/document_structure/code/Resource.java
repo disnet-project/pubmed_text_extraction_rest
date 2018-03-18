@@ -77,4 +77,14 @@ public class Resource {
     public int hashCode() {
         return Objects.hash(getName());
     }
+
+    @Override
+    public String toString() {
+        return "Resource{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", nameDisease='" + nameDisease + '\'' +
+                ", linkList=" + linkList +
+                '}';
+    }
 }

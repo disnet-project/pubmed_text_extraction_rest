@@ -17,9 +17,8 @@ import java.util.Objects;
  */
 public class Code {
 
-    private int id;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private int uniqueId;
+    private Integer id;
+    private Integer uniqueId;
     private String code;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Link link;
@@ -27,19 +26,19 @@ public class Code {
 
 
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getUniqueId() {
+    public Integer getUniqueId() {
         return uniqueId;
     }
 
-    public void setUniqueId(int uniqueId) {
+    public void setUniqueId(Integer uniqueId) {
         this.uniqueId = uniqueId;
     }
 
@@ -79,5 +78,16 @@ public class Code {
     @Override
     public int hashCode() {
         return Objects.hash(getCode(), getResource());
+    }
+
+    @Override
+    public String toString() {
+        return "Code{" +
+                "id=" + id +
+                ", uniqueId=" + uniqueId +
+                ", code='" + code + '\'' +
+                ", link=" + link +
+                ", resource=" + resource +
+                '}';
     }
 }

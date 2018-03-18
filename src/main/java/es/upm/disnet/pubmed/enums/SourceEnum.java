@@ -1,4 +1,5 @@
 package es.upm.disnet.pubmed.enums;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -12,15 +13,15 @@ import org.apache.commons.lang3.StringUtils;
  */
 public enum SourceEnum {
 
-    MESH(1, "MESH"),
+    //MESH(1, "MESH"),
     MeSH(1, "MeSH"),
     ICD_9(2, "ICD-9"),
-    ICD9(2, "ICD9"),
+    //ICD9(2, "ICD9"),
     ICD_10(3, "ICD-10"),
-    ICD10(3, "ICD10"),
+    //ICD10(3, "ICD10"),
     OMIM(4, "OMIM"),
     SNOMED_CT(5, "SNOMED_CT"),
-    SNOMEDCT(5, "SNOMEDCT"),
+    //SNOMEDCT(5, "SNOMEDCT"),
     UMLS(6, "UMLS"),
     DISEASE_ONTOLOGY(7, "DiseaseOntology"),
     NCI(8, "NCI"),

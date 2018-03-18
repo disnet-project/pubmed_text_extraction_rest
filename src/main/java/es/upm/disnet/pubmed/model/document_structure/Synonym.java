@@ -54,4 +54,14 @@ public class Synonym {
     public void setCodes(List<Code> codes) {
         this.codes = codes;
     }
+
+    @Override
+    public String toString() {
+        return "Synonym{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", codeCount=" + codeCount +
+                ", codes=" + codes +
+                '}';
+    }
 }

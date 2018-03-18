@@ -13,11 +13,29 @@ public class Paragraph extends Text {
     private String text;
 
 
+    public Paragraph() {
+    }
+
+    public Paragraph(int id, int textOrder, String paperId, String text) {
+        super(id, textOrder, paperId);
+        this.text = text;
+    }
+
     public String getText() {
         return text;
     }
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    @Override
+    public String toString() {
+        return "Paragraph{" +
+                " id=" + getId() + '\'' +
+                ", order=" + getTextOrder() + '\'' +
+                ", paperId=" + getPaperId() + '\'' +
+                ", text='" + text + '\'' +
+                '}';
     }
 }

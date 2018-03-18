@@ -20,12 +20,12 @@ public class Disease {
     private String name;
     private String definition;
     private String cui;
-    private String meshUI;//único para pubmed
-    private String meshMH;//términos mesh con los que se buscan los artículos
-    //mismos que meshMH, pero dentro de una lista separados
-    private Integer meshTermCount;
-    private List<Term> meshTerms;
-    private List<String> meshMN;//códigos de la estructura de árbol
+    private String meSHUI;//único para pubmed
+    private String meSHMH;//términos mesh con los que se buscan los artículos
+    //mismos que meSHMH, pero dentro de una lista separados
+    private Integer meSHTermCount;
+    private List<Term> meSHTerms;
+    private List<String> meSHMN;//códigos de la estructura de árbol
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer synonymCount;
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -35,6 +35,7 @@ public class Disease {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<Code> codes;
     private String isA;//Relacionado con otras enfermedades
+    private List<Link> links;
 
 
 
@@ -70,44 +71,44 @@ public class Disease {
         this.cui = cui;
     }
 
-    public String getMeshUI() {
-        return meshUI;
+    public String getMeSHUI() {
+        return meSHUI;
     }
 
-    public void setMeshUI(String meshUI) {
-        this.meshUI = meshUI;
+    public void setMeSHUI(String meSHUI) {
+        this.meSHUI = meSHUI;
     }
 
-    public String getMeshMH() {
-        return meshMH;
+    public String getMeSHMH() {
+        return meSHMH;
     }
 
-    public void setMeshMH(String meshMH) {
-        this.meshMH = meshMH;
+    public void setMeSHMH(String meSHMH) {
+        this.meSHMH = meSHMH;
     }
 
-    public Integer getMeshTermCount() {
-        return meshTermCount;
+    public Integer getMeSHTermCount() {
+        return meSHTermCount;
     }
 
-    public void setMeshTermCount(Integer meshTermCount) {
-        this.meshTermCount = meshTermCount;
+    public void setMeSHTermCount(Integer meSHTermCount) {
+        this.meSHTermCount = meSHTermCount;
     }
 
-    public List<Term> getMeshTerms() {
-        return meshTerms;
+    public List<Term> getMeSHTerms() {
+        return meSHTerms;
     }
 
-    public void setMeshTerms(List<Term> meshTerms) {
-        this.meshTerms = meshTerms;
+    public void setMeSHTerms(List<Term> meSHTerms) {
+        this.meSHTerms = meSHTerms;
     }
 
-    public List<String> getMeshMN() {
-        return meshMN;
+    public List<String> getMeSHMN() {
+        return meSHMN;
     }
 
-    public void setMeshMN(List<String> meshMN) {
-        this.meshMN = meshMN;
+    public void setMeSHMN(List<String> meSHMN) {
+        this.meSHMN = meSHMN;
     }
 
     public Integer getSynonymCount() {
@@ -150,16 +151,45 @@ public class Disease {
         this.isA = isA;
     }
 
+    public List<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<Link> links) {
+        this.links = links;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Disease)) return false;
         Disease disease = (Disease) o;
-        return Objects.equals(getMeshUI(), disease.getMeshUI());
+        return Objects.equals(getMeSHUI(), disease.getMeSHUI());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getMeshUI());
+        return Objects.hash(getMeSHUI());
+    }
+
+    @Override
+    public String toString() {
+        return "Disease{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", definition='" + definition + '\'' +
+                ", cui='" + cui + '\'' +
+                ", meSHUI='" + meSHUI + '\'' +
+                ", meSHMH='" + meSHMH + '\'' +
+                ", meSHTermCount=" + meSHTermCount +
+                ", meSHTerms=" + meSHTerms +
+                ", meSHMN=" + meSHMN +
+                ", synonymCount=" + synonymCount +
+                ", synonyms=" + synonyms +
+                ", codeCount=" + codeCount +
+                ", codes=" + codes +
+                ", isA='" + isA + '\'' +
+                ", links=" + links +
+                '}';
     }
 }

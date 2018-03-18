@@ -2,6 +2,7 @@ package es.upm.disnet.pubmed.model.document_structure.text;
 
 
 import es.upm.disnet.pubmed.model.document_structure.Link;
+import es.upm.disnet.pubmed.model.document_structure.PubMedDoc;
 
 import java.util.List;
 
@@ -17,20 +18,33 @@ import java.util.List;
 //Un Text siempre será un <p>, <ul><ol>
 public class Text {
 
-    private int id;
+    private Integer id;
     private String title;//EL nombre si tiene, será un <h3>
     private int textOrder;
 
     private Integer urlCount;
     private List<Link> urlList;
+    private String paperId;
 
+    public Text() {
+    }
 
+    public Text(int id, int textOrder) {
+        this.id = id;
+        this.textOrder = textOrder;
+    }
 
-    public int getId() {
+    public Text(Integer id, int textOrder, String paperId) {
+        this.id = id;
+        this.textOrder = textOrder;
+        this.paperId = paperId;
+    }
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -66,4 +80,22 @@ public class Text {
         this.urlList = urlList;
     }
 
+    public String getPaperId() {
+        return paperId;
+    }
+
+    public void setPaperId(String paperId) {
+        this.paperId = paperId;
+    }
+
+    @Override
+    public String toString() {
+        return "Text{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", textOrder=" + textOrder +
+                ", urlCount=" + urlCount +
+                ", urlList=" + urlList +
+                '}';
+    }
 }

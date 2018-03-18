@@ -30,7 +30,7 @@ public class Doc {
     private Integer codeCount;
     private List<Code> codeList;
     private Integer paperCount;
-    private List<Paper> paperList;
+    private List<PubMedDoc> paperList;
 
 
     public int getId() {
@@ -121,11 +121,29 @@ public class Doc {
         this.paperCount = paperCount;
     }
 
-    public List<Paper> getPaperList() {
+    public List<PubMedDoc> getPaperList() {
         return paperList;
     }
 
-    public void setPaperList(List<Paper> paperList) {
+    public void setPaperList(List<PubMedDoc> paperList) {
         this.paperList = paperList;
+    }
+
+    @Override
+    public String toString() {
+        return "Doc{" +
+                "id=" + id +
+                ", date=" + date +
+                ", url=" + url +
+                ", hasConnected=" + hasConnected +
+                ", diseaseArticle=" + diseaseArticle +
+                ", disease=" + disease +
+                ", sectionCount=" + sectionCount +
+                ", sectionList=" + sectionList +
+                ", codeCount=" + codeCount +
+                ", codeList=" + codeList +
+                ", paperCount=" + paperCount +
+                ", paperList=" + paperList +
+                '}';
     }
 }

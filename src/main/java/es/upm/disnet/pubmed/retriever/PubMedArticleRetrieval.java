@@ -15,6 +15,7 @@ import es.upm.disnet.pubmed.xmlparser.PubMedEFetchHandler;
 import es.upm.disnet.pubmed.xmlparser.PubMedESearchHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 import reciter.model.pubmed.PubMedArticle;
@@ -35,13 +36,13 @@ import java.util.concurrent.Executors;
  * <p>
  * See https://github.com/wcmc-its/ReCiter-PubMed-Retrieval-Tool
  */
-@Service
-public class PubMedArticleRetrievalService {
+@Component
+public class PubMedArticleRetrieval {
 
-    private final static Logger slf4jLogger = LoggerFactory.getLogger(PubMedArticleRetrievalService.class);
+    private final static Logger slf4jLogger = LoggerFactory.getLogger(PubMedArticleRetrieval.class);
 
     /**
-     * Initializes and starts threads that handles the retrieval process. Partition the number of articles
+     * Initializes and starts threads that handles the retrieve process. Partition the number of articles
      * into manageable pieces and ask each thread to handle one partition.
      */
     public List<PubMedArticle> retrieve(String pubMedQuery) throws IOException {
@@ -103,7 +104,9 @@ public class PubMedArticleRetrievalService {
         //} else {
         //    throw new IOException("Number of PubMed Articles retrieved " + numberOfPubmedArticles + " exceeded the threshold level 2000");
         //}
-        return pubMedArticles.subList(0, Math.min(pubMedArticles.size(), 100));
+        //return pubMedArticles.subList(0, Math.min(pubMedArticles.size(), 100));
+        //return pubMedArticles.subList(0, Math.min(pubMedArticles.size(), 2));
+        return pubMedArticles.subList( 0, pubMedArticles.size() );
     }
 
     protected int getNumberOfPubMedArticles(String query) throws IOException {

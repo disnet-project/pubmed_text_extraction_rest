@@ -20,7 +20,7 @@ public class Response {
     private String responseCode;
     private String responseMessage;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<Source> sources;
+    private Source source;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private HashMap<String, Resource> resourceHashMap;
     private String start_time;
@@ -43,12 +43,12 @@ public class Response {
         this.responseMessage = responseMessage;
     }
 
-    public List<Source> getSources() {
-        return sources;
+    public Source getSource() {
+        return source;
     }
 
-    public void setSources(List<Source> sources) {
-        this.sources = sources;
+    public void setSource(Source source) {
+        this.source = source;
     }
 
     public HashMap<String, Resource> getResourceHashMap() {
