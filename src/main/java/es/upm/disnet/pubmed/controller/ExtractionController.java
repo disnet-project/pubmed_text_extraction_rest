@@ -1,5 +1,6 @@
 package es.upm.disnet.pubmed.controller;
 
+import es.upm.disnet.pubmed.common.util.Common;
 import es.upm.disnet.pubmed.model.Request;
 import es.upm.disnet.pubmed.model.Response;
 import es.upm.disnet.pubmed.service.ExtractService;
@@ -28,6 +29,8 @@ public class ExtractionController {
 
     @Autowired
     private ExtractService extractService;
+    @Autowired
+    private Common common;
 
     @RequestMapping(path =  {  "${my.service.rest.request.mapping.texts.path}" },
             method = RequestMethod.POST)
@@ -37,5 +40,13 @@ public class ExtractionController {
         extractService.extract(request);
 
         return response;
+    }
+
+
+    @RequestMapping(path = { "/test" }, //wikipedia extraction
+            method = RequestMethod.GET)
+    public String test() throws Exception {
+        common.writeJSONFile("{\"test\":\"glg_test\"}", "2018-03-15");
+        return "ESCRITO";
     }
 }

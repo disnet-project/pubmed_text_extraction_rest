@@ -15,7 +15,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -58,8 +63,13 @@ public class DiseaseRetrieval {
 
             // Obtain MeSH records
 
-            Path meshPath = Paths.get(
-                    Thread.currentThread().getContextClassLoader().getResource("mesh/d2018.bin").toURI());
+            final Map<String, String> env = new HashMap<>();
+            URI uri = getClass().getResource("/mesh").toURI();
+            final String[] array = uri.toString().split("!");
+            final FileSystem fs = FileSystems.newFileSystem(URI.create(array[0]), env);
+            Path meshPath = Paths.get(fs.getPath(array[0]).toUri());
+            //Path meshPath = Paths.get(
+                    //Thread.currentThread().getContextClassLoader().getResource("mesh/d2018.bin").toURI());
 
             MeSHASCIIParser meSHASCIIParser = new MeSHASCIIParser();
 

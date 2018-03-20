@@ -21,6 +21,7 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 
 group = 'es.upm.disnet'
@@ -77,6 +78,8 @@ dependencies {
 
     // Gson
     compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+
+    compile group: 'org.apache.commons', name: 'commons-text', version: '1.2'
 
 
 
