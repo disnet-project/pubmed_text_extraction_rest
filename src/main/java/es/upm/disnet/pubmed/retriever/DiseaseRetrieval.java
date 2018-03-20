@@ -63,28 +63,17 @@ public class DiseaseRetrieval {
 
             // Obtain MeSH records
 
-            final Map<String, String> env = new HashMap<>();
-            URI uri = getClass().getResource("/mesh").toURI();
-            final String[] array = uri.toString().split("!");
-            final FileSystem fs = FileSystems.newFileSystem(URI.create(array[0]), env);
-            Path meshPath = Paths.get(fs.getPath(array[0]).toUri());
-            //Path meshPath = Paths.get(
-                    //Thread.currentThread().getContextClassLoader().getResource("mesh/d2018.bin").toURI());
-
             MeSHASCIIParser meSHASCIIParser = new MeSHASCIIParser();
 
-            final List<GenericSemiStructuredTextParser.Record> meshRecords = meSHASCIIParser.parse(meshPath, StandardCharsets.UTF_8.name());
+            final List<GenericSemiStructuredTextParser.Record> meshRecords = meSHASCIIParser.parse("mesh/d2018.bin", StandardCharsets.UTF_8.name());
             logger.info("meshRecords in d2018.bin {}.", meshRecords.size());
             //for (GenericSemiStructuredTextParser.Record meshRec: meshRecords) {System.out.println("meshRec.getId(): "+meshRec.getId());}
 
             // Obtain DO records
 
-            Path doPath = Paths.get(
-                    Thread.currentThread().getContextClassLoader().getResource("do/HumanDO.obo").toURI());
-
             DiseaseOntologyOBOParser diseaseOntologyOBOParser = new DiseaseOntologyOBOParser();
 
-            final List<GenericSemiStructuredTextParser.Record> doRecords = diseaseOntologyOBOParser.parse(doPath, StandardCharsets.UTF_8.name());
+            final List<GenericSemiStructuredTextParser.Record> doRecords = diseaseOntologyOBOParser.parse("do/HumanDO.obo", StandardCharsets.UTF_8.name());
 
             // Populate Disease repository with diseases in DO that have MeSH terms
 
