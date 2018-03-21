@@ -27,7 +27,7 @@ public class MeSHASCIIParser {
             RECORD_DELIMETER, PROPERTY_DELIMETER, ID_KEY
     );
 
-    public final List<Record> parse(Path filePath, String encoding) throws IOException {
+    public final List<Record> parse(String filePath, String encoding) throws IOException {
         return parser.parse(filePath, encoding);
     }
 }

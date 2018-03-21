@@ -10,6 +10,7 @@
 package es.upm.disnet.pubmed.parser;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -35,8 +36,10 @@ public class GenericSemiStructuredTextParser {
         this.idKey = idKey;
     }
 
-    public final List<Record> parse(Path filePath, String encoding) throws IOException {
-        try (Scanner scanner = new Scanner(filePath, encoding)) {
+    public final List<Record> parse(String filePath, String encoding) throws IOException {
+        InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(filePath);
+
+        try (Scanner scanner = new Scanner(resourceAsStream, encoding)) {
             while (scanner.hasNextLine()) {
                 processLine(scanner.nextLine());
             }
