@@ -105,8 +105,8 @@ public class PubMedArticleRetrieval {
         //    throw new IOException("Number of PubMed Articles retrieved " + numberOfPubmedArticles + " exceeded the threshold level 2000");
         //}
         //return pubMedArticles.subList(0, Math.min(pubMedArticles.size(), 100));
-        //return pubMedArticles.subList(0, Math.min(pubMedArticles.size(), 2));
-        return pubMedArticles.subList( 0, pubMedArticles.size() );
+        return pubMedArticles.subList(0, Math.min(pubMedArticles.size(), 2));
+        //return pubMedArticles.subList( 0, pubMedArticles.size() );
     }
 
     protected int getNumberOfPubMedArticles(String query) throws IOException {

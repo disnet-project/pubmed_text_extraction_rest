@@ -85,7 +85,7 @@ public class RetrievalControl {
                 List<PubMedDoc> pubMedDocs = new ArrayList<>();
                 disease.setId(diseaseCount);
 
-                logger.info("Retrieving docs for id " + disease.getMeSHUI() + " | " + disease.getMeSHMH());
+                logger.info("("+diseaseCount+") Retrieving docs for id " + disease.getMeSHUI() + " | " + disease.getMeSHMH());
 
                 String pubMedMeshTermQuery =
                         URLEncoder.encode(getPubMedMeshTermQuery(disease.getMeSHMH()), StandardCharsets.UTF_8.name());
@@ -313,7 +313,7 @@ public class RetrievalControl {
 
                 pubMedDoc.setAbstractText(abstractText);
             } catch (Exception e) {
-                logger.error("Error retrieving abstract for PubMed doc  {}", pubMedDoc.getPmID(), e);
+                logger.error("(3) Error retrieving abstract for PubMed doc  {}", pubMedDoc.getPmID(), e);
             }
         }
     }
