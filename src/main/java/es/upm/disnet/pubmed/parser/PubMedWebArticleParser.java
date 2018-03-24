@@ -38,13 +38,19 @@ public class PubMedWebArticleParser {
                     .timeout(JSOUP_TIMEOUT*1000)
                     .get();
 
-            Element abstractElement = doc.getElementsByTag("abstracttext").first();
+            Element abstractElement = null;
+
+            try {
+                abstractElement = doc.getElementsByTag("abstracttext").first();
+            }catch (Exception e){
+                logger.error("(1) Error to retrieve abstract from Url ({}) for PubMed doc {}", url, e);
+            }
 
             if (abstractElement != null) {
                 return abstractElement.text();
             }
         }catch (Exception e){
-            logger.error("Error to connect with Url ({}) for PubMed doc {}", url, e);
+            logger.error("(2) Error to connect with Url ({}) for PubMed doc {}", url, e);
         }
 
         return "";
