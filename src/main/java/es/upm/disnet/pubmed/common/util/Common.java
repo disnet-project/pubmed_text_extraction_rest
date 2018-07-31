@@ -103,8 +103,8 @@ public class Common {
      * @param snapshot
      * @throws IOException
      */
-    public void writeJSONFile(String jsonBody, String snapshot) throws IOException {
-        String fileName = snapshot + Constants.RETRIEVAL_FILE_NAME + Constants.DOT_JSON;
+    public void writeJSONFile(String jsonBody, String snapshot, String file_name) throws IOException {
+        String fileName = snapshot + file_name + Constants.DOT_JSON;
         String path = Constants.RETRIEVAL_HISTORY_FOLDER + fileName;
         InputStream in = getClass().getResourceAsStream(path);
         //BufferedReader bL = new BufferedReader(new InputStreamReader(in));
@@ -126,12 +126,17 @@ public class Common {
      */
     public Source readPubMedRetrievalJSON(String snapshot) throws Exception {
         Source source = null;
-        System.out.println("Read JSON!...");
         Gson gson = new Gson();
         String fileName = snapshot + Constants.RETRIEVAL_FILE_NAME + Constants.DOT_JSON;
         String path = Constants.RETRIEVAL_HISTORY_FOLDER + fileName;
+        System.out.println("Read JSON!..." + path);
 
         try {
+            File file = new File(path);
+            if (file.exists()){
+                System.out.println("length: "+/*(*/file.length()/*/(1024*1024))*/+" mb");
+            System.out.println("getTotalSpace: "+file.getTotalSpace());
+            }
             BufferedReader br = new BufferedReader(new FileReader(path));
             source = gson.fromJson(br, Source.class);
         }catch (Exception e){
@@ -141,6 +146,7 @@ public class Common {
         /*for (edu.upm.midas.data.validation.metamap.model.response.Text text: resp.getTexts()) {
             System.out.println("TextId: " + text.getId() + " | Concepts: " + text.getConcepts().toString());
         }*/
+        //System.out.println("source: "+source);
 
         return source;
     }

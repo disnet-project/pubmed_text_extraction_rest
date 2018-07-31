@@ -78,6 +78,16 @@ public class RetrievalControl {
             // obteniendo más información de la HumanDO.obo
             List<Disease> diseaseList = diseaseRetrieval.retrieve(request.getSnapshot());
             System.out.println("Disease Retrieved: " + diseaseList.size());
+            if (request.isJson()) {
+                try {
+                    logger.info("Saving initiated disease list (MeSH terms) ");
+                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                    common.writeJSONFile(gson.toJson(diseaseList), request.getSnapshot(), Constants.RETRIEVAL_DISEASE_LIST_FILE_NAME);
+                    logger.info("Saving of finished disease list (MeSH terms) ");
+                } catch (Exception e) {
+                    logger.error("Error while save json {} ", request.getSnapshot() + Constants.RETRIEVAL_FILE_NAME + Constants.DOT_JSON);
+                }
+            }
 
             int diseaseCount = 1, documentCount = 0;
             for (Disease disease: diseaseList) {
@@ -91,7 +101,7 @@ public class RetrievalControl {
                         URLEncoder.encode(getPubMedMeshTermQuery(disease.getMeSHMH()), StandardCharsets.UTF_8.name());
 
                 try {
-                    List<PubMedArticle> pubMedArticles = pubMedArticleRetrieval.retrieve(pubMedMeshTermQuery);
+                    List<PubMedArticle> pubMedArticles = pubMedArticleRetrieval.retrieve(pubMedMeshTermQuery, request.getNumOfArticles());
 
                     logger.debug(
                             "{} PubMed articles retrieved for disease with MESH UI {} ({})",
@@ -133,6 +143,17 @@ public class RetrievalControl {
 
                 docList.add(document);
                 //if (diseaseCount==1) break;
+                //Guardar enfermedad con sus artículos encontrados
+                if (request.isJson()) {
+                    try {
+                        logger.info("Saving initiated document (Disease and PubMed articles) ");
+                        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                        common.writeJSONFile(gson.toJson(document), request.getSnapshot(), Constants.RETRIEVAL_DOCUMENT_FILE_NAME + "_" + document.getDisease().getMeSHUI());
+                        logger.info("Saving of finished document (Disease and PubMed articles) ");
+                    } catch (Exception e) {
+                        logger.error("Error while save json {} ", request.getSnapshot() + Constants.RETRIEVAL_FILE_NAME + Constants.DOT_JSON);
+                    }
+                }
 
                 diseaseCount++;
             }
@@ -150,19 +171,51 @@ public class RetrievalControl {
             logger.error("Error while retrieving Disease and their PubMedDoc from PubMed source", e);
         }
 
-        if (request.isJson()) {
-            try {
-                logger.info("Saving initiated PubMed texts");
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                common.writeJSONFile(gson.toJson(source), request.getSnapshot());
-                logger.info("Saving of finished PubMed texts");
-            } catch (Exception e) {
-                logger.error("Error while save json {} ", request.getSnapshot() + Constants.RETRIEVAL_FILE_NAME + Constants.DOT_JSON);
-            }
-        }
+//        if (request.isJson()) {
+//            try {
+//                logger.info("Saving initiated PubMed texts");
+//                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//                common.writeJSONFile(gson.toJson(source), request.getSnapshot(), Constants.RETRIEVAL_FILE_NAME);
+//                logger.info("Saving of finished PubMed texts");
+//            } catch (Exception e) {
+//                logger.error("Error while save json {} ", request.getSnapshot() + Constants.RETRIEVAL_FILE_NAME + Constants.DOT_JSON);
+//            }
+//        }
 
         return source;
 
+    }
+
+
+    public Source getMoreCodes(Request request){
+        Source source = null;
+        try {
+            //source = common.readPubMedRetrievalJSON(request.getSnapshot());
+            //System.out.println("source: "+source);
+            // obteniendo más información de la HumanDO.obo
+            List<Disease> diseaseList = diseaseRetrieval.retrieve(request.getSnapshot());
+        } catch (Exception e) {
+            logger.error("Error while save json {} ", request.getSnapshot() + Constants.RETRIEVAL_FILE_NAME + Constants.DOT_JSON);
+        }
+        return source;
+
+    }
+
+
+    /**
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    public Source retrieveByJSON(Request request) throws Exception {
+        Source source = null;
+        try {
+            source = common.readPubMedRetrievalJSON(request.getSnapshot());
+            //System.out.println("source: "+source);
+        } catch (Exception e) {
+            logger.error("Error while save json {} ", request.getSnapshot() + Constants.RETRIEVAL_FILE_NAME + Constants.DOT_JSON);
+        }
+        return source;
     }
 
 

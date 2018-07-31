@@ -25,16 +25,20 @@ public enum SourceEnum {
     UMLS(6, "UMLS"),
     DISEASE_ONTOLOGY(7, "DiseaseOntology"),
     NCI(8, "NCI"),
-    CSP(9, "CSP")
+    CSP(9, "CSP"),
+    ORDO(10,"ORDO")
     ;
 
     private int clave;
     private String descripcion;
 
-    private SourceEnum(int clave, String descripcion) {
+
+    SourceEnum(int clave, String descripcion) {
         this.clave = clave;
         this.descripcion = descripcion;
     }
+
+
 
     public static SourceEnum getEnum(String clave) {
         if (StringUtils.isNotBlank(clave)) {

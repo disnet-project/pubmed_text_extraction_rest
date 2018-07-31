@@ -24,6 +24,7 @@ public class Request {
     @Size(min = 10, max = 10, message = Constants.ERR_EMPTY_PARAMETER)
     private String snapshot;
     private boolean json;
+    private Integer numOfArticles;
 
 
     public String getSnapshot() {
@@ -40,5 +41,13 @@ public class Request {
 
     public void setJson(boolean json) {
         this.json = json;
+    }
+
+    public Integer getNumOfArticles() {
+        return numOfArticles;
+    }
+
+    public void setNumOfArticles(Integer numOfArticles) {
+        this.numOfArticles = numOfArticles;
     }
 }

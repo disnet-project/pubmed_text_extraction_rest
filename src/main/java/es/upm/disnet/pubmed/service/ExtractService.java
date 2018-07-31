@@ -65,4 +65,38 @@ public class ExtractService {
     }
 
 
+    public Response extractByJSON(Request request) throws Exception {
+        Response response = new Response();
+        Source source = new Source();
+
+        String start = timeProvider.getTimestampFormat();
+        Date version = timeProvider.getSqlDate();
+
+        try {
+            source = retrievalControl.retrieveByJSON(request);
+            //System.out.println("source_OK: "+source);
+            if (source != null) {
+                response.setResponseCode(StatusHttpEnum.OK.getClave());
+                response.setResponseMessage(StatusHttpEnum.OK.getDescripcion());
+            } else {
+                response.setResponseCode(ApiErrorEnum.RESOURCES_NOT_FOUND.getKey());
+                response.setResponseMessage(ApiErrorEnum.RESOURCES_NOT_FOUND.getDescription());
+            }
+        }catch (Exception e){
+            response.setResponseCode(ApiErrorEnum.INTERNAL_SERVER_ERROR.getKey());
+            response.setResponseMessage(ApiErrorEnum.INTERNAL_SERVER_ERROR.getDescription());
+        }
+        String end = timeProvider.getTimestampFormat();
+
+        response.setSource(source);
+        response.setStart_time(start);
+        response.setEnd_time(end);
+
+        System.out.println("Inicio:" + start + " | Termino: " + end);
+
+        return response;
+
+    }
+
+
 }

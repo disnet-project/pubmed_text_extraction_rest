@@ -3,6 +3,7 @@ package es.upm.disnet.pubmed.controller;
 import es.upm.disnet.pubmed.common.util.Common;
 import es.upm.disnet.pubmed.model.Request;
 import es.upm.disnet.pubmed.model.Response;
+import es.upm.disnet.pubmed.retriever.DiseaseRetrieval;
 import es.upm.disnet.pubmed.service.ExtractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mobile.device.Device;
@@ -30,6 +31,8 @@ public class ExtractionController {
     @Autowired
     private ExtractService extractService;
     @Autowired
+    private DiseaseRetrieval diseaseRetrieval;
+    @Autowired
     private Common common;
 
     @RequestMapping(path =  {  "${my.service.rest.request.mapping.texts.path}" },
@@ -43,10 +46,26 @@ public class ExtractionController {
     }
 
 
+    @RequestMapping(path =  {  "${my.service.rest.request.mapping.texts.json.path}" },
+            method = RequestMethod.POST)
+    public Response extractByJSON(@RequestBody @Valid Request request, HttpServletRequest httpRequest, Device device) throws Exception {
+        Response response = new Response();
+        return extractService.extractByJSON(request);
+    }
+
+
     @RequestMapping(path = { "/test" }, //wikipedia extraction
             method = RequestMethod.GET)
     public String test() throws Exception {
-        common.writeJSONFile("{\"test\":\"glg_test\"}", "2018-03-15");
+        common.writeJSONFile("{\"test\":\"glg_test\"}", "2018-03-15", "_file_test");
         return "ESCRITO";
+    }
+
+
+    @RequestMapping(path =  {  "/diseaselistinfo" },
+            method = RequestMethod.GET)
+    public String diseaseListInfo(){
+        diseaseRetrieval.retrieve("2018-06-07");
+        return "disease list info";
     }
 }

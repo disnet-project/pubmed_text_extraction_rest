@@ -74,7 +74,7 @@ public class DiseaseRetrieval {
             DiseaseOntologyOBOParser diseaseOntologyOBOParser = new DiseaseOntologyOBOParser();
 
             final List<GenericSemiStructuredTextParser.Record> doRecords = diseaseOntologyOBOParser.parse("do/HumanDO.obo", StandardCharsets.UTF_8.name());
-
+            logger.info("doRecords in HumanDO.obo {}.", doRecords.size());
             // Populate Disease repository with diseases in DO that have MeSH terms
 
             List<GenericSemiStructuredTextParser.Record> testList = doRecords.stream().filter(o -> o.hasPropertyValue("xref", "MESH")).collect(Collectors.toList());
@@ -126,7 +126,7 @@ public class DiseaseRetrieval {
 
         logger.trace("Adding disease with MESH UI {} from DO Id {}", meshRecord.getId(), doRecord.getId());
         //logger.info("Adding disease with MESH UI {} from DO Id {}", meshRecord.getId(), doRecord.getId());
-        //System.out.println(meshRecord.getId() +", "+ doRecord.getId());
+
 
         disease.setMeSHUI(meshRecord.getId());
         disease.setName(doRecord.getPropertyValue("name"));
@@ -137,16 +137,19 @@ public class DiseaseRetrieval {
                 getCodes(doRecord.getPropertyValues("xref", "ICD10CM:"),
                         doRecord.getPropertyValues("xref", "OMIM:"),
                         doRecord.getPropertyValues("xref", "SNOMEDCT_US_2016_03_01:"),
-                        doRecord.getPropertyValues("xref", "UMLS_CUI:")
+                        doRecord.getPropertyValues("xref", "UMLS_CUI:"),
+                        doRecord.getPropertyValues("xref", "ICD9CM:"),
+                        doRecord.getPropertyValues("xref", "NCI:")
                         )
         );
         disease.setCodeCount(disease.getCodes().size());
         disease.setSynonyms( getSynonyms(doRecord.getPropertyValues("synonym")) );
         disease.setSynonymCount(disease.getSynonyms().size());
 
+        // DO terms might point to the same MeSHUI. In that case, DO terms are merged by MeSHUI.
         if (diseases.contains(disease)){ /*containsName(diseases, meshRecord.getId())*/
             //Por el momento he decidido no hacer nada con los repetidos.
-            //Lo comentaré mañana. Eduardo los fuciona
+            //Lo comentaré mañana. Eduardo los fusiona
             Disease existingDisease = diseases.get( diseases.indexOf(disease) );
             //System.out.println("Found: " + meshRecord.getId() + " - " + existingDisease.getMeSHMH());
             //System.out.println("old: " + existingDisease.getName() + " | new: "+ disease.getName());
@@ -154,6 +157,21 @@ public class DiseaseRetrieval {
             disease.setMeSHMH(meshRecord.getPropertyValue("MH"));
             disease.setMeSHTerms( getMeshTerms(Arrays.asList( meshRecord.getPropertyValue("MH").split(","))) );
             disease.setMeSHTermCount(disease.getMeSHTerms().size());
+
+            // Filter excluded MeSH descriptors
+            List<String> meshMNList =
+                    meshRecord.getPropertyValues("MN")
+                            .stream()
+                            .filter(o -> !EXCLUDED_MESH_MN.contains(o.split("\\.")[0]))
+                            .collect(Collectors.toList());
+
+            if (meshMNList.isEmpty()) {
+                return;
+            }
+
+//            System.out.println(meshRecord.getId() +", "+ doRecord.getId() + " - "+doRecord.getPropertyValue("name"));
+            System.out.println(meshRecord.getId() + " - "+doRecord.getPropertyValue("name"));
+
             disease.setMeSHMN(getMeshTreeCodes(meshRecord.getPropertyValues("MN")));
             diseases.add(disease);
             //System.out.println("Not Found: " + meshRecord.getId());
@@ -162,6 +180,7 @@ public class DiseaseRetrieval {
         //System.out.println("DISEASE: " + disease);
 
     }
+
 
     private List<Link> getDiseaseLinks(String definition){
         List<Link> links = new ArrayList<>();
@@ -226,12 +245,18 @@ public class DiseaseRetrieval {
     }
 
     private Resource identifyResource(String resource){
+        int len = SourceEnum.values().length;
         for (SourceEnum source: SourceEnum.values()) {
             //System.out.println(resource+" == "+source.getDescripcion().toUpperCase().replace("-", "").replace("_", ""));
             if (resource.contains(source.getDescripcion().toUpperCase().replace("-", "").replace("_", ""))){
 //                System.out.println(resource+" == "+source.getDescripcion().toUpperCase().replace("-", "").replace("_", ""));
                 return new Resource(source.getClave(), source.getDescripcion());
-            }
+            }/*else{
+                SourceEnum sourceEnum = ;
+                sourceEnum.setClave(len+1);
+                sourceEnum.setDescripcion(resource);
+                return new Resource(sourceEnum.getClave() , sourceEnum.getDescripcion());
+            }*/
         }
         return null;
     }
@@ -255,17 +280,21 @@ public class DiseaseRetrieval {
     }
 
 
-    private List<Code> getCodes(List<String> icd10Codes, List<String> omimCodes, List<String> snomedCtCodes, List<String> umlsCodes){
+    private List<Code> getCodes(List<String> icd10Codes, List<String> omimCodes, List<String> snomedCtCodes, List<String> umlsCodes, List<String> icd9Codes, List<String> nciCodes){
         List<Code> codes = new ArrayList<>();
         Resource icd10 = new Resource(SourceEnum.ICD_10.getClave(), SourceEnum.ICD_10.getDescripcion());
+        Resource icd9 = new Resource(SourceEnum.ICD_9.getClave(), SourceEnum.ICD_9.getDescripcion());
         Resource omim = new Resource(SourceEnum.OMIM.getClave(), SourceEnum.OMIM.getDescripcion());
         Resource snomed_ct = new Resource(SourceEnum.SNOMED_CT.getClave(), SourceEnum.SNOMED_CT.getDescripcion());
         Resource umls = new Resource(SourceEnum.UMLS.getClave(), SourceEnum.UMLS.getDescripcion());
+        Resource nci = new Resource(SourceEnum.NCI.getClave(), SourceEnum.NCI.getDescripcion());
         int count = 1;
         count = getGenericCode(codes, icd10Codes, count, icd10);
+        count = getGenericCode(codes, icd9Codes, count, icd9);
         count = getGenericCode(codes, omimCodes, count, omim);
         count = getGenericCode(codes, snomedCtCodes, count, snomed_ct);
         count = getGenericCode(codes, umlsCodes, count, umls);
+        count = getGenericCode(codes, nciCodes, count, nci);
 
         return codes;
     }
@@ -288,6 +317,7 @@ public class DiseaseRetrieval {
 
 
     private List<String> getMeshTreeCodes(List<String> codes){
+        // Filter excluded MeSH descriptors
         List<String> meshMNList =
                 codes
                         .stream()
