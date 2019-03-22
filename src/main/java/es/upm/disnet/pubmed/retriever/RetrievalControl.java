@@ -90,6 +90,7 @@ public class RetrievalControl {
             }
 
             int diseaseCount = 1, documentCount = 0;
+            //<editor-fold desc="DiseaseList">
             for (Disease disease: diseaseList) {
                 Doc document = new Doc();
                 List<PubMedDoc> pubMedDocs = new ArrayList<>();
@@ -100,6 +101,7 @@ public class RetrievalControl {
                 String pubMedMeshTermQuery =
                         URLEncoder.encode(getPubMedMeshTermQuery(disease.getMeSHMH()), StandardCharsets.UTF_8.name());
 
+                //<editor-fold desc="try retrieved pubmed docs">
                 try {
                     List<PubMedArticle> pubMedArticles = pubMedArticleRetrieval.retrieve(pubMedMeshTermQuery, request.getNumOfArticles());
 
@@ -123,6 +125,7 @@ public class RetrievalControl {
                 } catch (Exception e) {
                     logger.error("Error in rest {}", pubMedMeshTermQuery, e);
                 }
+                //</editor-fold>
 
                 document.setId(diseaseCount);
                 document.setDate(new SimpleDateFormat("yyyy-MM-dd").parse(request.getSnapshot()));
@@ -157,6 +160,7 @@ public class RetrievalControl {
 
                 diseaseCount++;
             }
+            //</editor-fold>
             watch.stop();
 
             logger.info(

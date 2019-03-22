@@ -157,7 +157,7 @@ public class DiseaseRetrieval {
             disease.setMeSHMH(meshRecord.getPropertyValue("MH"));
             disease.setMeSHTerms( getMeshTerms(Arrays.asList( meshRecord.getPropertyValue("MH").split(","))) );
             disease.setMeSHTermCount(disease.getMeSHTerms().size());
-
+//            System.out.print(meshRecord.getPropertyValues("MN"));
             // Filter excluded MeSH descriptors
             List<String> meshMNList =
                     meshRecord.getPropertyValues("MN")
@@ -170,14 +170,16 @@ public class DiseaseRetrieval {
             }
 
 //            System.out.println(meshRecord.getId() +", "+ doRecord.getId() + " - "+doRecord.getPropertyValue("name"));
-            System.out.println(meshRecord.getId() + " - "+doRecord.getPropertyValue("name"));
+
+//            System.out.println(meshRecord.getId() + " - "+doRecord.getPropertyValue("name"));
 
             disease.setMeSHMN(getMeshTreeCodes(meshRecord.getPropertyValues("MN")));
             diseases.add(disease);
             //System.out.println("Not Found: " + meshRecord.getId());
         }
 
-        //System.out.println("DISEASE: " + disease);
+//        System.out.println("DISEASE: " + disease);
+//        System.out.println("DISEASE: " + disease.getMeSHUI() + " | " + disease.getName());
 
     }
 

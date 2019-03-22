@@ -26,6 +26,19 @@ public class Request {
     private boolean json;
     private Integer numOfArticles;
 
+    public Request() {
+    }
+
+    public Request(String snapshot, boolean json) {
+        this.snapshot = snapshot;
+        this.json = json;
+    }
+
+    public Request(String snapshot, boolean json, Integer numOfArticles) {
+        this.snapshot = snapshot;
+        this.json = json;
+        this.numOfArticles = numOfArticles;
+    }
 
     public String getSnapshot() {
         return snapshot;
